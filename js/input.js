@@ -34,7 +34,7 @@
 						alert('Warning: The selected image is smaller than the required size:\n' + warnings.join('\n'));
 					}
 					else{
-						if($options.data('force-crop')){
+						if($options.data('force_crop')){
 							initCrop($field);
 						}
 					}
