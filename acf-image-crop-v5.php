@@ -803,7 +803,6 @@ class acf_field_image_crop extends acf_field_image {
         if(!is_object($data)){
             return $value;
         }
-
         $value = $data->cropped_image;
 
         // format
@@ -824,6 +823,7 @@ class acf_field_image_crop extends acf_field_image {
         elseif( $field['save_format'] == 'object' )
         {
             if(is_numeric($data->cropped_image )){
+
                 $attachment = get_post( $data->cropped_image );
                 // validate
                 if( !$attachment )
@@ -869,11 +869,15 @@ class acf_field_image_crop extends acf_field_image {
             }
             elseif(is_array( $data->cropped_image)){
                 $value = array(
-                    'url' => $this->getAbsoluteImageUrl($data->cropped_image['image']),
+                    'url' => $this->getAbsoluteImageUrl($data->cropped_image['image'])
+                );
+            }
+            elseif(is_object($data->cropped_image)){
+                $value = array(
+                    'url' => $this->getAbsoluteImageUrl($data->cropped_image->image)
                 );
             }
             else{
-
                 //echo 'ELSE';
             }
 
