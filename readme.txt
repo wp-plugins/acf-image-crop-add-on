@@ -3,7 +3,7 @@ Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,11 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.1.2 =
+* Fixed issue with force crop option
+* Fixed issue with save to media option
+* Fixed issue with return type object
 
 = 1.1.1 =
 * Removed unsued references and that caused php warnings
