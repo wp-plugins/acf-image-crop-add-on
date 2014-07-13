@@ -282,7 +282,7 @@ class acf_field_image_crop extends acf_field_image {
             'data-width'            => $width,
             'data-height'           => $height,
             'data-force_crop'       => $field['force_crop'] == 'yes' ? 'true' : 'false',
-            'data-save_to_media_library' => $field['save_in_media_library'] == 'yes' ? 'true' : 'false',
+            'data-save_to_media_library' => $field['save_in_media_library'],
             'data-save_format'      => $field['save_format'],
             'data-preview_size'     => $field['preview_size'],
             'data-library'          => $field['library']
