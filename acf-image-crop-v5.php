@@ -689,7 +689,7 @@ class acf_field_image_crop extends acf_field_image {
 
         $dir = plugin_dir_url( __FILE__ );
 
-        wp_register_script('acf-input-image-crop-options', "{$dir}js/options.js", array('jquery'), $this->settings['version']);
+        wp_register_script('acf-input-image-crop-options', "{$dir}js/options.js", array('jquery'));
         wp_enqueue_script( 'acf-input-image-crop-options');
 
         wp_register_style('acf-input-image-crop-options', "{$dir}css/options.css");
