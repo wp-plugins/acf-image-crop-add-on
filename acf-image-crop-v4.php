@@ -783,7 +783,7 @@ class acf_field_image_crop extends acf_field_image
         	// Get the filetype
 	        $wp_filetype = wp_check_filetype(basename($targetFilePath), null );
 	        $attachment = array(
-	             'guid' => $targetFilePath,
+	             'guid' => $mediaDir['url'] . '/' . basename($targetFilePath),
 	             'post_mime_type' => $wp_filetype['type'],
 	             'post_title' => preg_replace('/\.[^.]+$/', '', basename($targetFilePath)),
 	             'post_content' => '',
@@ -792,6 +792,7 @@ class acf_field_image_crop extends acf_field_image
 	        $attachmentId = wp_insert_attachment( $attachment, $targetFilePath);
 	        $attachmentData = wp_generate_attachment_metadata( $attachmentId, $targetFilePath );
 	        wp_update_attachment_metadata( $attachmentId, $attachmentData );
+	        add_post_meta($attachmentId, 'acf_is_cropped', 'true', true);
 
 	        // Add the id to the imageData-array
 	        $imageData['value'] = $attachmentId;
