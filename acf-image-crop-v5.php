@@ -138,9 +138,10 @@ class acf_field_image_crop extends acf_field_image {
         // target_size
         $sizes = acf_get_image_sizes();
         $sizes['custom'] = __('Custom size', 'acf-image_crop');
+        $options = get_option();
         acf_render_field_setting( $field, array(
             'label'         => __('Target size','acf-image_crop'),
-            'instructions'  => __('Select the target size for this field','acf-image_crop'),
+            'instructions'  => __('Select the target size for this field' . ($this->getOption('retina_mode') ? '<br><br><em><b>Retina mode is enabled - user will be required to select an image twice this size</b></em>' : ''),'acf-image_crop'),
             'type'          => 'select',
             'name'          => 'target_size',
             'class'         => 'target-size-select',
@@ -278,6 +279,12 @@ class acf_field_image_crop extends acf_field_image {
                 $width = get_option($s.'_size_w');
                 $height = get_option($s.'_size_h');
             }
+        }
+
+        // Retina mode
+        if($this->getOption('retina_mode')){
+            $width = $width * 2;
+            $height = $height * 2;
         }
 
         // vars
@@ -631,6 +638,14 @@ class acf_field_image_crop extends acf_field_image {
             'media',                 // settings page
             'acf_image_crop_settings'                  // settings section
         );
+
+        add_settings_field(
+            'acf_image_crop_retina_mode',      // id
+            __('Enable retina mode (beta)', 'acf-image_crop'),              // setting title
+            array($this, 'displayRetinaModeInput'),    // display callback
+            'media',                 // settings page
+            'acf_image_crop_settings'                  // settings section
+        );
     }
 
     function displayHideFromMediaInput(){
@@ -640,7 +655,19 @@ class acf_field_image_crop extends acf_field_image {
 
         // echo the field
         ?>
-    <input id='boss_email' name='acf_image_crop_settings[hide_cropped]'
+    <input name='acf_image_crop_settings[hide_cropped]'
+     type='checkbox' <?php echo $value ? 'checked' :  '' ?> value='true' />
+        <?php
+    }
+
+    function displayRetinaModeInput(){
+        // Get plugin options
+        $options = get_option( 'acf_image_crop_settings' );
+        $value = $options['retina_mode'];
+
+        // echo the field
+        ?>
+    <input name='acf_image_crop_settings[retina_mode]'
      type='checkbox' <?php echo $value ? 'checked' :  '' ?> value='true' />
         <?php
     }
@@ -951,6 +978,12 @@ class acf_field_image_crop extends acf_field_image {
 
     }
 
+    function getOption($key){
+        if(! $this->options){
+            $this->options = get_option( 'acf_image_crop_settings' );
+        }
+        return isset($this->options[$key]) ? $this->options[$key] : null;
+    }
 
 
 
