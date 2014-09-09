@@ -39,4 +39,12 @@ function register_fields_image_crop() {
 
 add_action('acf/register_fields', 'register_fields_image_crop');
 
+
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'acf_image_crop_action_links' );
+
+function acf_image_crop_action_links( $links ) {
+   $links[] = '<a href="'. get_admin_url(null, 'options-media.php') .'">Settings</a>';
+   return $links;
+}
+
 ?>
