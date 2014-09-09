@@ -50,8 +50,11 @@ class acf_field_image_crop extends acf_field_image {
             'save_format' => 'id',
             'save_in_media_library' => 'yes',
             'target_size' => 'thumbnail',
-            'library' => 'all'
+            'library' => 'all',
+            'retina_mode' => 'no'
         );
+
+        $this->options = get_option( 'acf_image_crop_settings' );
 
         // add ajax action to be able to retrieve full image size via javascript
         add_action( 'wp_ajax_acf_image_crop_get_image_size', array( &$this, 'crop_get_image_size' ) );
@@ -138,7 +141,6 @@ class acf_field_image_crop extends acf_field_image {
         // target_size
         $sizes = acf_get_image_sizes();
         $sizes['custom'] = __('Custom size', 'acf-image_crop');
-        $options = get_option();
         acf_render_field_setting( $field, array(
             'label'         => __('Target size','acf-image_crop'),
             'instructions'  => __('Select the target size for this field' . ($this->getOption('retina_mode') ? '<br><br><em><b>Retina mode is enabled - user will be required to select an image twice this size</b></em>' : ''),'acf-image_crop'),
@@ -193,6 +195,20 @@ class acf_field_image_crop extends acf_field_image {
             'layout'        => 'horizontal',
             'name'          => 'save_in_media_library',
             'class'         => 'save-in-media-library-select',
+            'choices'       =>  array('yes' => 'Yes', 'no' => 'No')
+        ));
+
+         // retina mode
+        $retina_instructions = __('Require and crop double the size set for this image. Enable this if you are using plugins like WP Retina 2x.','acf-image_crop');
+        if($this->getOption('retina_mode')){
+            $retina_instructions .= '<br>' . __('NB. You currently have enabled retina mode globally for all fields through <a href="' . admin_url('options-media.php') . '#acf-image-crop-retina-mode' . '">settings</a>, which will override this setting.','acf-image_crop');
+        }
+        acf_render_field_setting( $field, array(
+            'label'         => __('Retina/@2x mode ','acf-image_crop'),
+            'instructions'  => $retina_instructions,
+            'type'          => 'radio',
+            'layout'        => 'horizontal',
+            'name'          => 'retina_mode',
             'choices'       =>  array('yes' => 'Yes', 'no' => 'No')
         ));
 
@@ -282,7 +298,7 @@ class acf_field_image_crop extends acf_field_image {
         }
 
         // Retina mode
-        if($this->getOption('retina_mode')){
+        if($this->getOption('retina_mode') || $field['retina_mode'] == 'yes'){
             $width = $width * 2;
             $height = $height * 2;
         }
@@ -641,7 +657,7 @@ class acf_field_image_crop extends acf_field_image {
 
         add_settings_field(
             'acf_image_crop_retina_mode',      // id
-            __('Enable retina mode (beta)', 'acf-image_crop'),              // setting title
+            __('Enable global retina mode (beta)', 'acf-image_crop'),              // setting title
             array($this, 'displayRetinaModeInput'),    // display callback
             'media',                 // settings page
             'acf_image_crop_settings'                  // settings section
@@ -667,7 +683,7 @@ class acf_field_image_crop extends acf_field_image {
 
         // echo the field
         ?>
-    <input name='acf_image_crop_settings[retina_mode]'
+    <input id="acf-image-crop-retina-mode" name='acf_image_crop_settings[retina_mode]'
      type='checkbox' <?php echo $value ? 'checked' :  '' ?> value='true' />
         <?php
     }

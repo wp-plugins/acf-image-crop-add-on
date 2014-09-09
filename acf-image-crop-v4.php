@@ -28,16 +28,19 @@ class acf_field_image_crop extends acf_field_image
 			'preview_size' => 'medium',
 			'save_format' => 'id',
 			'save_in_media_library' => 'yes',
-			'target_size' => 'thumbnail'
+			'target_size' => 'thumbnail',
+			'retina_mode' => 'no'
 			// add default here to merge into your field.
 			// This makes life easy when creating the field options as you don't need to use any if( isset('') ) logic. eg:
 			//'preview_size' => 'thumbnail'
 		);
 
+		$this->options = get_option( 'acf_image_crop_settings' );
+
 		//Call grandparent cunstructor
 		acf_field::__construct();
 
-    // settings
+    	// settings
 		$this->settings = array(
 			'path' => apply_filters('acf/helpers/get_path', __FILE__),
 			'dir' => apply_filters('acf/helpers/get_dir', __FILE__),
@@ -216,6 +219,32 @@ class acf_field_image_crop extends acf_field_image
 				'no'		=>	__("No",'acf')
 			),
 			'class'		=>  'save-in-media-library-select'
+		));
+		?>
+	</td>
+</tr>
+<?php
+	$retina_instructions = __('Require and crop double the size set for this image. Enable this if you are using plugins like WP Retina 2x.','acf-image_crop');
+	if($this->getOption('retina_mode')){
+	    $retina_instructions .= '<br>' . __('NB. You currently have enabled retina mode globally for all fields through <a href="' . admin_url('options-media.php') . '#acf-image-crop-retina-mode' . '">settings</a>, which will override this setting.','acf-image_crop');
+	}
+?>
+<tr class="field_option field_option_<?php echo $this->name; ?>">
+	<td class="label">
+		<label><?php _e('Retina/@2x mode ','acf-image_crop'); ?></label>
+		<p><?php echo $retina_instructions ?></p>
+	</td>
+	<td>
+		<?php
+		do_action('acf/create_field', array(
+			'type'		=>	'radio',
+			'name'		=>	'fields['.$key.'][retina_mode]',
+			'value'		=>	$field['retina_mode'],
+			'layout'	=>	'horizontal',
+			'choices'	=> array(
+				'yes'	=>	__("Yes",'acf'),
+				'no'		=>	__("No",'acf')
+			),
 		));
 		?>
 	</td>
@@ -751,6 +780,91 @@ class acf_field_image_crop extends acf_field_image
 		$mediaDir = wp_upload_dir();
 		return $mediaDir['baseurl'] . '/' .  $relativeUrl;
 	}
+
+	function getImagePath($relativePath){
+        $mediaDir = wp_upload_dir();
+        return $mediaDir['basedir'] . '/' .  $relativeUrl;
+    }
+
+	function filterMediaQuery($args){
+        // get options
+        $options = get_option( 'acf_image_crop_settings' );
+        $hide = $options['hide_cropped'];
+
+        // If hide option is enabled, do not select items with the acf_is_cropped meta-field
+        if($hide){
+            $args['meta_query']= array(
+                array(
+                    'key' => 'acf_is_cropped',
+                    'compare' => 'NOT EXISTS'
+                )
+            );
+        }
+        return $args;
+    }
+
+
+    function registerSettings(){
+        add_settings_section(
+            'acf_image_crop_settings',
+            __('ACF Image Crop Settings','acf-image_crop'),
+            array($this, 'displayImageCropSettingsSection'),
+            'media'
+        );
+
+        register_setting(
+            'media',                                       // settings page
+            'acf_image_crop_settings'                     // option name
+        );
+
+        add_settings_field(
+            'acf_image_crop_hide_cropped',      // id
+            __('Hide cropped images from media dialog', 'acf-image_crop'),              // setting title
+            array($this, 'displayHideFromMediaInput'),    // display callback
+            'media',                 // settings page
+            'acf_image_crop_settings'                  // settings section
+        );
+
+        add_settings_field(
+            'acf_image_crop_retina_mode',      // id
+            __('Enable global retina mode (beta)', 'acf-image_crop'),              // setting title
+            array($this, 'displayRetinaModeInput'),    // display callback
+            'media',                 // settings page
+            'acf_image_crop_settings'                  // settings section
+        );
+    }
+
+    function displayHideFromMediaInput(){
+        // Get plugin options
+        $options = get_option( 'acf_image_crop_settings' );
+        $value = $options['hide_cropped'];
+
+        // echo the field
+        ?>
+    <input name='acf_image_crop_settings[hide_cropped]'
+     type='checkbox' <?php echo $value ? 'checked' :  '' ?> value='true' />
+        <?php
+    }
+
+    function displayRetinaModeInput(){
+        // Get plugin options
+        $options = get_option( 'acf_image_crop_settings' );
+        $value = $options['retina_mode'];
+
+        // echo the field
+        ?>
+    <input id="acf-image-crop-retina-mode" name='acf_image_crop_settings[retina_mode]'
+     type='checkbox' <?php echo $value ? 'checked' :  '' ?> value='true' />
+        <?php
+    }
+
+    function displayImageCropSettingsSection(){
+        echo '';
+    }
+
+    function getOption($key){
+        return isset($this->options[$key]) ? $this->options[$key] : null;
+    }
 
 }
 
