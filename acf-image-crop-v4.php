@@ -51,6 +51,12 @@ class acf_field_image_crop extends acf_field_image
         add_action( 'wp_ajax_acf_image_crop_get_image_size', array( &$this, 'crop_get_image_size' ) );
         add_action( 'wp_ajax_acf_image_crop_perform_crop', array( &$this, 'perform_crop' ) );
 
+        // add filter to media query function to hide cropped images from media library
+        add_filter('ajax_query_attachments_args', array($this, 'filterMediaQuery'));
+
+        // Register extra fields on the media settings page on admin_init
+        add_action('admin_init', array($this, 'registerSettings'));
+
 	}
 
 	// AJAX handler for retieving full image dimensions from ID
