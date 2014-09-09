@@ -62,7 +62,7 @@ function my_register_fields()
 == Changelog ==
 
 = 1.2 =
-* Fix: Edit image not working for cropped image fields
+* Improved: Edit image is now working for most cropped image fields.
 * Fix: Wrong GUID for generated images that could cause issues when moving a site to a new location
 * Tweak: Added "original_image"-attribute when using return type "Object", containing the original image data.
 * Tweak: Return type "Object" is now available when not saving cropped image to media library. The data except from url, width and height is fetched from the original image.
