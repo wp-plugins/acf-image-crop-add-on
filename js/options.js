@@ -40,8 +40,10 @@ jQuery(function($){
 			var saveToMedia = $(saveToMediaSelect).val() == 'yes';
 			var $returnValueField = $(saveToMediaSelect).parents('.field_type-image_crop').find('.return-value-select');
 			if(! saveToMedia){
-				$returnValueField.find('input[value=id], input[value=object]').attr('disabled', true).parents('label').addClass('disabled');
-				$returnValueField.find('input[value=url]').attr('checked', true);
+				$returnValueField.find('input[value=id]').attr('disabled', true).parents('label').addClass('disabled');
+				if($returnValueField.find('input[value=id]').is(':checked')){
+					$returnValueField.find('input[value=url]').attr('checked', true);
+				}
 			}
 			else{
 				$returnValueField.find('input').removeAttr('disabled').parents('label').removeClass('disabled');
