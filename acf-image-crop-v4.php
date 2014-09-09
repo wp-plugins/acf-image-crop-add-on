@@ -856,7 +856,7 @@ class acf_field_image_crop extends acf_field_image
 
 	function getImagePath($relativePath){
         $mediaDir = wp_upload_dir();
-        return $mediaDir['basedir'] . '/' .  $relativeUrl;
+        return $mediaDir['basedir'] . '/' .  $relativePath;
     }
 
 	function filterMediaQuery($args){
