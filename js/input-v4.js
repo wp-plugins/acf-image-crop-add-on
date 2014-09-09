@@ -75,7 +75,7 @@
 				e.preventDefault();
 				cancelCrop($field);
 			});
-			$(document).on('click', '.acf-image-uploader .acf-button-edit', function( e ){
+			$field.on('click', '.acf-image-uploader .acf-button-edit', function( e ){
 				e.preventDefault();
 				e.stopPropagation();
 				var id = $field.find('.acf-image-value').data('cropped-image');
@@ -318,7 +318,6 @@
 
 		},
 		edit : function(id){
-
 
 
 
