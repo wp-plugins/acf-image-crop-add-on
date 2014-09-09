@@ -75,6 +75,19 @@
 				e.preventDefault();
 				cancelCrop($field);
 			});
+			$field.find('[data-name=edit-button]').click(function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				var id = $field.find('.acf-image-value').data('cropped-image');
+				if(!$.isNumeric(id)){
+					id = $field.find('.acf-image-value').data('original-image');;
+				}
+				acf.media.edit_popup({
+					title : acf._e('image', 'edit'),
+					button : acf._e('image', 'update'),
+					id : id
+				});
+			});
 		});
 
 	});
