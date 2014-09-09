@@ -3,7 +3,7 @@ Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 1.1.4
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,15 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.2 =
+* Fix: Edit image not working for cropped image fields
+* Fix: Wrong GUID for generated images that could cause issues when moving a site to a new location
+* Tweak: Added "original_image"-attribute when using return type "Object", containing the original image data.
+* Tweak: Return type "Object" is now available when not saving cropped image to media library. The data except from url, width and height is fetched from the original image.
+* Feature: It is now possible to hide cropped images from the media dialog. (See the new settings section) NB.: Only works for future cropped images.
+* Feature: Retina-mode, that makes the image field require and crop double the dimensions. Results in better integration with plugins like WP Retina 2x
+* Feature: Settings-seciton under Settings -> Media. Here you can choose to hide cropped images from the media dialog as well as enable/disable global retina mode.
 
 = 1.1.4 =
 * Fixed an issue causing a php warning when editing custom fields
