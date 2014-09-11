@@ -320,7 +320,7 @@ class acf_field_image_crop extends acf_field_image {
             'type'                  => 'hidden',
             'name'                  => $field['name'],
             'value'                 => htmlspecialchars($field['value']),
-            'data-name'             => 'value-id',
+            'data-name'             => 'id',
             'data-original-image'   => $imageData->original_image,
             'data-cropped-image'    => json_encode($imageData->cropped_image),
             'class'                 => 'acf-image-value'
@@ -339,10 +339,10 @@ class acf_field_image_crop extends acf_field_image {
     </div>
     <div class="view show-if-value acf-soh">
         <ul class="acf-hl acf-soh-target">
-            <li><a class="acf-icon dark" data-name="edit-button" href="#"><i class="acf-sprite-edit"></i></a></li>
-            <li><a class="acf-icon dark" data-name="remove-button" href="#"><i class="acf-sprite-delete"></i></a></li>
+            <li><a class="acf-icon dark" data-name="edit" href="#"><i class="acf-sprite-edit"></i></a></li>
+            <li><a class="acf-icon dark" data-name="remove" href="#"><i class="acf-sprite-delete"></i></a></li>
         </ul>
-        <img data-name="value-url" src="<?php echo $url; ?>" alt=""/>
+        <img data-name="image" src="<?php echo $url; ?>" alt=""/>
         <div class="crop-section">
             <div class="crop-stage">
                 <div class="crop-action">
@@ -363,7 +363,7 @@ class acf_field_image_crop extends acf_field_image {
         </div>
     </div>
     <div class="view hide-if-value">
-        <p><?php _e('No image selected','acf'); ?> <a data-name="add-button" class="acf-button" href="#"><?php _e('Add Image','acf'); ?></a></p>
+        <p><?php _e('No image selected','acf'); ?> <a data-name="add" class="acf-button" href="#"><?php _e('Add Image','acf'); ?></a></p>
     </div>
 </div>
 <?php
@@ -469,6 +469,7 @@ class acf_field_image_crop extends acf_field_image {
         // wp_enqueue_style('acf-input-image_crop');
 
         // register acf scripts
+        //wp_register_script('acf-input-image', "{$dir}../advanced-custom-fields-pro/js/input/image.js");
         wp_register_script('acf-input-image_crop', "{$dir}js/input.js", array('acf-input', 'imgareaselect'));
 
         wp_register_style('acf-input-image_crop', "{$dir}css/input.css", array('acf-input'));
