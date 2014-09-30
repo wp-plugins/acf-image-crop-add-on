@@ -3,7 +3,7 @@ Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
 Tested up to: 4.0
-Stable tag: 1.3
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,14 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.4 =
+* Fixed images with dot in the file name resulting in odd cropped image names
+* Fixed issues with php notices in v4
+* Fixed issues with broken image fields in v4
+* Temporarily fixed images smaller than preview size not being added (ACF bug)
+* Updated localization thanks to @tmconnect
+* Various tweaks and fixes by @tmconnect
 
 = 1.3 =
 * Updated to be compatible with original image field changes as of ACF Pro 5.0.8. IMPORTANT: As this is a quick fix to ensure compatability with the newest ACF PRO version it is not backwards compatible. If you are using ACF Pro 5.0.7 and below, please use version 1.2 of this add-on.

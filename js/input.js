@@ -122,7 +122,11 @@
                 attachment.url = attachment.attributes.sizes[ this.settings.preview_size ].url;
 
             }
+            // set url to default url in case preview size does not exist
+            else if(acf.isset(attachment, 'attributes', 'url')){
 
+                attachment.url = attachment.attributes.url;
+            }
 
             // set atts
             this.$el.find('[data-name="image"]').attr( 'src', attachment.url );
@@ -203,17 +207,23 @@ function initialize_field( $el ) {
                     var warnings = [];
                     var valid = true;
                     if($options.data('width') && data['width'] < $options.data('width')){
-                        warnings.push('Width should be at least: ' + $options.data('width') + 'px (Selected image width: ' + data['width'] + 'px)');
+// changed for translation
+                       warnings.push( acf._e('image_crop', 'width_should_be') + $options.data('width') + 'px\n' + acf._e('image_crop', 'selected_width') + data['width'] + 'px');
+// changed END
                         valid = false;
                     }
                     if($options.data('height') && data['height'] < $options.data('height')){
-                        warnings.push('Height should be at least: ' + $options.data('height') + 'px (Selected image height: ' + data['height'] + 'px)');
+// changed for translation
+                        warnings.push(acf._e('image_crop', 'height_should_be') + $options.data('height') + 'px\n' + acf._e('image_crop', 'selected_height') + data['height'] + 'px');
+// changed END
                         valid = false;
                     }
                     if(!valid){
                         $field.addClass('invalid');
                         $field.find('.init-crop-button').attr('disabled', 'disabled');
-                        alert('Warning: The selected image is smaller than the required size:\n' + warnings.join('\n'));
+// changed for translation
+                        alert(acf._e('image_crop', 'size_warning') + '\n\n' + warnings.join('\n\n'));
+// changed END
                     }
                     else{
                         if($options.data('force_crop')){

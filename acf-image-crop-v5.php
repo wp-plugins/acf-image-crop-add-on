@@ -73,7 +73,11 @@ class acf_field_image_crop extends acf_field_image {
         */
 
         $this->l10n = array(
-            'error' => __('Error! Please enter a higher value', 'acf-image_crop'),
+            'width_should_be'   => __( 'Width should be at least: ','acf-image_crop' ),
+            'height_should_be'  => __( 'Height should be at least: ','acf-image_crop' ),
+            'selected_width'    => __( 'Selected image width: ','acf-image_crop' ),
+            'selected_height'   => __( 'Selected image height: ','acf-image_crop' ),
+            'size_warning'      => __( 'Warning: The selected image is smaller than the required size!','acf-image_crop' )
         );
 
 
@@ -140,10 +144,16 @@ class acf_field_image_crop extends acf_field_image {
 
         // target_size
         $sizes = acf_get_image_sizes();
+// added
+        $instructions = __('Select the target size for this field','acf-image_crop');
+        if ( $this->getOption('retina_mode') ) {
+            $instructions .= '<br><br><em><strong>'.__('Retina mode is enabled - user will be required to select an image twice this size','acf-image_crop').'</strong></em>';
+        }
+// added END
         $sizes['custom'] = __('Custom size', 'acf-image_crop');
         acf_render_field_setting( $field, array(
             'label'         => __('Target size','acf-image_crop'),
-            'instructions'  => __('Select the target size for this field' . ($this->getOption('retina_mode') ? '<br><br><em><b>Retina mode is enabled - user will be required to select an image twice this size</b></em>' : ''),'acf-image_crop'),
+            'instructions'  => $instructions,
             'type'          => 'select',
             'name'          => 'target_size',
             'class'         => 'target-size-select',
@@ -156,7 +166,8 @@ class acf_field_image_crop extends acf_field_image {
             'instructions'  => __('Leave blank for no restriction (does not work with hard crop option)','acf-image_crop'),
             'type'          => 'number',
             'name'          => 'width',
-            'class'         => 'custom-target-width custom-target-dimension'
+            'class'         => 'custom-target-width custom-target-dimension',
+            'append'        => 'px'
         ));
 
         // height - conditional: target_size == 'custom'
@@ -165,13 +176,14 @@ class acf_field_image_crop extends acf_field_image {
             'instructions'  => __('Leave blank for no restriction (does not work with hard crop option)','acf-image_crop'),
             'type'          => 'number',
             'name'          => 'height',
-            'class'         => 'custom-target-height custom-target-dimension'
+            'class'         => 'custom-target-height custom-target-dimension',
+            'append'        => 'px'
         ));
 
         // preview_size
         acf_render_field_setting( $field, array(
-            'label'         => __('Preview size','acf-image_crop'),
-            'instructions'  => __('Select the preview size for this field','acf-image_crop'),
+            'label'         => __('Preview Size','acf'),
+            'instructions'  => __('Shown when entering data','acf'),
             'type'          => 'select',
             'name'          => 'preview_size',
             'choices'       =>  acf_get_image_sizes()
@@ -184,7 +196,7 @@ class acf_field_image_crop extends acf_field_image {
             'type'          => 'radio',
             'layout'        => 'horizontal',
             'name'          => 'force_crop',
-            'choices'       =>  array('yes' => 'Yes', 'no' => 'No')
+            'choices'       =>  array('yes' => __('Yes', 'acf'), 'no' => __('No', 'acf'))
         ));
 
         // save_in_media_library
@@ -195,36 +207,33 @@ class acf_field_image_crop extends acf_field_image {
             'layout'        => 'horizontal',
             'name'          => 'save_in_media_library',
             'class'         => 'save-in-media-library-select',
-            'choices'       =>  array('yes' => 'Yes', 'no' => 'No')
+            'choices'       =>  array('yes' => __('Yes', 'acf'), 'no' => __('No', 'acf'))
         ));
 
-         // retina mode
-        $retina_instructions = __('Require and crop double the size set for this image. Enable this if you are using plugins like WP Retina 2x.','acf-image_crop');
-        if($this->getOption('retina_mode')){
-            $retina_instructions .= '<br>' . __('NB. You currently have enabled retina mode globally for all fields through <a href="' . admin_url('options-media.php') . '#acf-image-crop-retina-mode' . '">settings</a>, which will override this setting.','acf-image_crop');
+// only show this setting if the global option for retina mode is not activated
+        // retina mode
+        if ( !$this->getOption('retina_mode') ) {
+            acf_render_field_setting( $field, array(
+                'label'         => __('Retina/@2x mode ','acf-image_crop'),
+                'instructions'  => __('Require and crop double the size set for this image. Enable this if you are using plugins like WP Retina 2x.','acf-image_crop'),
+                'type'          => 'radio',
+                'layout'        => 'horizontal',
+                'name'          => 'retina_mode',
+                'choices'       =>  array('yes' => __('Yes', 'acf'), 'no' => __('No', 'acf'))
+            ));
         }
-        acf_render_field_setting( $field, array(
-            'label'         => __('Retina/@2x mode ','acf-image_crop'),
-            'instructions'  => $retina_instructions,
-            'type'          => 'radio',
-            'layout'        => 'horizontal',
-            'name'          => 'retina_mode',
-            'choices'       =>  array('yes' => 'Yes', 'no' => 'No')
-        ));
-
-
         // return_format
         acf_render_field_setting( $field, array(
-            'label'         => __('Return Value','acf-image_crop'),
-            'instructions'  => __('Specify the returned value on front end','acf-image_crop'),
+            'label'         => __('Return Value','acf'),
+            'instructions'  => __('Specify the returned value on front end','acf'),
             'type'          => 'radio',
             'name'          => 'save_format',
             'layout'        => 'horizontal',
             'class'         =>  'return-value-select',
             'choices'       => array(
+                'object'         => __("Image Array",'acf'),
                 'url'           => __("Image URL",'acf'),
-                'id'            => __("Image ID",'acf'),
-                'object'         => __("Image Object",'acf')
+                'id'            => __("Image ID",'acf')
             )
         ));
 
@@ -346,20 +355,20 @@ class acf_field_image_crop extends acf_field_image {
         <div class="crop-section">
             <div class="crop-stage">
                 <div class="crop-action">
-                    <h4>Crop the image</h4>
+                    <h4><?php _e('Crop the image','acf-image_crop'); ?></h4>
                 <?php if ($imageData->original_image ): ?>
                     <img class="crop-image" src="<?php echo $imageData->original_image_url ?>" data-width="<?php echo $imageData->original_image_width ?>" data-height="<?php echo $imageData->original_image_height ?>" alt="">
                 <?php endif ?>
                 </div>
                 <div class="crop-preview">
-                    <h4>Preview</h4>
+                    <h4><?php _e('Preview','acf-image_crop'); ?></h4>
                     <div class="preview"></div>
                     <div class="crop-controls">
-                        <a href="#" class="button button-large cancel-crop-button">Cancel</a> <a href="#" class="button button-large button-primary perform-crop-button">Crop!</a>
+                        <a href="#" class="button button-large cancel-crop-button"><?php _e('Cancel','acf-image_crop'); ?></a> <a href="#" class="button button-large button-primary perform-crop-button"><?php _e('Crop!','acf-image_crop'); ?></a>
                     </div>
                 </div>
             </div>
-            <a href="#" class="button button-large init-crop-button">Crop</a>
+            <a href="#" class="button button-large init-crop-button"><?php _e('Crop','acf-image_crop'); ?></a>
         </div>
     </div>
     <div class="view hide-if-value">
@@ -524,8 +533,11 @@ class acf_field_image_crop extends acf_field_image {
         // Retrieve original filename and seperate it from its file extension
         $originalFileName = explode('.', basename($originalImageData['file']));
 
+        // Retrieve and remove file extension from array
+        $originalFileExtension = array_pop($originalFileName);
+
         // Generate new base filename
-        $targetFileName = $originalFileName[0] . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileName[1];
+        $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileExtension;
 
         // Generate target path new file using existing media library
         $targetFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], $targetFileName);
@@ -650,7 +662,13 @@ class acf_field_image_crop extends acf_field_image {
 
         register_setting(
             'media',                                       // settings page
-            'acf_image_crop_settings'                     // option name
+            'acf_image_crop_settings',                     // option name
+// added
+// a callback to a new function to set options to false and not to an empty string
+// there was an error if you set an option, save and then unset this option and save again
+// because the option value could be empty if non of the options is activated
+            array($this, 'validateImageCropSettingsSection')
+// added END
         );
 
         add_settings_field(
@@ -698,7 +716,15 @@ class acf_field_image_crop extends acf_field_image {
         echo '';
     }
 
+// added
+// a function that sets theoptions value to false
+    function validateImageCropSettingsSection($input) {
+        $input['hide_cropped'] = ( $input['hide_cropped'] == true ? true : false );
+        $input['retina_mode'] = ( $input['retina_mode'] == true ? true : false );
 
+        return $input;
+    }
+// added END
 
 
 

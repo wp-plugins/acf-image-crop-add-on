@@ -361,8 +361,8 @@ class acf_field_image_crop extends acf_field_image
             $height = $height * 2;
         }
 		?>
-<div class="acf-image-uploader clearfix <?php echo $o['class']; ?>" data-field-id="<?php echo $field['key'] ?>" data-preview_size="<?php echo $field['preview_size']; ?>" data-library="<?php echo $field['library']; ?>" data-width="<?php echo $width ?>" data-height="<?php echo $height ?>" data-crop-type="<?php echo $field['crop_type'] ?>" <?php echo ($field['force_crop'] == 'yes' ? 'data-force-crop="true"' : '')?> data-save-to-media-library="<?php echo $field['save_in_media_library'] ?>"  >
-	<input class="acf-image-value" data-original-image="<?php echo $data->original_image ?>"  data-cropped-image="<?php echo json_encode($data->cropped_image) ?>" type="hidden" name="<?php echo $field['name']; ?>" value="<?php echo htmlspecialchars($field['value']); ?>" />
+<div class="acf-image-uploader clearfix <?php echo $o['class']; ?>" data-field-id="<?php echo $field['key'] ?>" data-preview_size="<?php echo $field['preview_size']; ?>" data-library="<?php echo isset($field['library']) ? $field['library'] : 'all'; ?>" data-width="<?php echo $width ?>" data-height="<?php echo $height ?>" data-crop-type="<?php echo $field['crop_type'] ?>" <?php echo ($field['force_crop'] == 'yes' ? 'data-force-crop="true"' : '')?> data-save-to-media-library="<?php echo $field['save_in_media_library'] ?>"  >
+	<input class="acf-image-value" data-original-image="<?php echo $imageData->original_image ?>"  data-cropped-image="<?php echo json_encode($imageData->cropped_image) ?>" type="hidden" name="<?php echo $field['name']; ?>" value="<?php echo htmlspecialchars($field['value']); ?>" />
 	<div class="has-image">
 		<div class="image-section">
 			<div class="hover">
@@ -764,11 +764,11 @@ class acf_field_image_crop extends acf_field_image
         // Crop the image using the provided measurements
         $image->crop($x1, $y1, $x2 - $x1, $y2 - $y1, $targetW, $targetH);
 
-        // Retrieve original filename and seperate it from its file extension
-        $originalFileName = explode('.', basename($originalImageData['file']));
+        // Retrieve and remove file extension from array
+        $originalFileExtension = array_pop($originalFileName);
 
         // Generate new base filename
-        $targetFileName = $originalFileName[0] . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileName[1];
+        $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileExtension;
 
         // Generate target path new file using existing media library
         $targetFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], $targetFileName);
