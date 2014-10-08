@@ -3,7 +3,7 @@ Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
 Tested up to: 4.0
-Stable tag: 1.4
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,9 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.4.1 =
+* Fixed issue with image not cropping in v4
 
 = 1.4 =
 * Fixed images with dot in the file name resulting in odd cropped image names
