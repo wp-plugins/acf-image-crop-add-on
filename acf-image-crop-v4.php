@@ -764,6 +764,9 @@ class acf_field_image_crop extends acf_field_image
         // Crop the image using the provided measurements
         $image->crop($x1, $y1, $x2 - $x1, $y2 - $y1, $targetW, $targetH);
 
+        // Retrieve original filename and seperate it from its file extension
+        $originalFileName = explode('.', basename($originalImageData['file']));
+
         // Retrieve and remove file extension from array
         $originalFileExtension = array_pop($originalFileName);
 
