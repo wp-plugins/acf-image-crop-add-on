@@ -327,6 +327,7 @@ function initialize_field( $el ) {
     }
 
     function updateThumbnail($field, img, selection){
+        console.log('updating thumbnail');
         var $options = $field.find('.acf-image-uploader');
         var div = $field.find('.crop-preview .preview');
         var targetWidth = $field.find('.crop-preview .preview').width();
@@ -337,10 +338,12 @@ function initialize_field( $el ) {
         div.css('width', (selection.x2 - selection.x1) * factor);
         //height
         div.css('height', (selection.y2 - selection.y1) * factor);
-        //x offset
-        div.css('background-position-x', 0-(selection.x1 * factor));
-        //y offset
-        div.css('background-position-y', 0-(selection.y1 * factor));
+
+        // Set offset - Fix by @christdg
+        pos_x = 0-(selection.x1 * factor);
+        pos_y = 0-(selection.y1 * factor);
+        div.css('background-position', pos_x + 'px ' + pos_y + 'px');
+
         div.css('background-size', $options.find('.crop-stage img.crop-image').data('width') * factor + 'px' + ' ' + $options.find('.crop-stage img.crop-image').data('height') * factor + 'px');
     }
 
@@ -376,10 +379,15 @@ function initialize_field( $el ) {
                 save_to_media_library: saveToMediaLibrary
             }
             $.post(ajaxurl, data, function(data, textStatus, xhr) {
-                $field.find('[data-name=image]').attr('src', data.preview_url);
-                $field.find('.acf-image-value').data('cropped-image', data.value);
-                $field.find('.acf-image-value').data('cropped', true);
-                updateFieldValue($field);
+                if(data.success){
+                    $field.find('[data-name=image]').attr('src', data.preview_url);
+                    $field.find('.acf-image-value').data('cropped-image', data.value);
+                    $field.find('.acf-image-value').data('cropped', true);
+                    updateFieldValue($field);
+                }
+                else{
+                    $field.append('<div class="error"><p>' + acf._e('image_crop', 'crop_error') + '</p>' + data.error_message);
+                }
                 $field.find('.crop-stage').removeClass('loading');
                 cancelCrop($field);
             }, 'json');

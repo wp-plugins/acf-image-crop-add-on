@@ -16,6 +16,9 @@
 .field_type-image_crop .crop-stage .crop-preview h4{
 	margin-top:0;
 }
+.field_type-image_crop .error{
+	margin-top: 20px !important;
+}
 /* added END */
 .field_type-image_crop .crop-stage .crop-preview .preview{
 	width:100%;

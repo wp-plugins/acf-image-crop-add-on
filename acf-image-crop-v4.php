@@ -450,48 +450,50 @@ class acf_field_image_crop extends acf_field_image
 		elseif( $field['save_format'] == 'object' )
 		{
 			if(is_numeric($data->cropped_image )){
-				$attachment = get_post( $data->cropped_image );
-				// validate
-				if( !$attachment )
-				{
-					return false;
-				}
+				$value = $this->getImageArray($data->cropped_image);
+                $value['original_image'] = $this->getImageArray($data->original_image);
+				// $attachment = get_post( $data->cropped_image );
+				// // validate
+				// if( !$attachment )
+				// {
+				// 	return false;
+				// }
 
 
-				// create array to hold value data
-				$src = wp_get_attachment_image_src( $attachment->ID, 'full' );
+				// // create array to hold value data
+				// $src = wp_get_attachment_image_src( $attachment->ID, 'full' );
 
-				$value = array(
-					'id' => $attachment->ID,
-					'alt' => get_post_meta($attachment->ID, '_wp_attachment_image_alt', true),
-					'title' => $attachment->post_title,
-					'caption' => $attachment->post_excerpt,
-					'description' => $attachment->post_content,
-					'mime_type'	=> $attachment->post_mime_type,
-					'url' => $src[0],
-					'width' => $src[1],
-					'height' => $src[2],
-					'sizes' => array(),
-				);
+				// $value = array(
+				// 	'id' => $attachment->ID,
+				// 	'alt' => get_post_meta($attachment->ID, '_wp_attachment_image_alt', true),
+				// 	'title' => $attachment->post_title,
+				// 	'caption' => $attachment->post_excerpt,
+				// 	'description' => $attachment->post_content,
+				// 	'mime_type'	=> $attachment->post_mime_type,
+				// 	'url' => $src[0],
+				// 	'width' => $src[1],
+				// 	'height' => $src[2],
+				// 	'sizes' => array(),
+				// );
 
 
-				// find all image sizes
-				$image_sizes = get_intermediate_image_sizes();
+				// // find all image sizes
+				// $image_sizes = get_intermediate_image_sizes();
 
-				if( $image_sizes )
-				{
-					foreach( $image_sizes as $image_size )
-					{
-						// find src
-						$src = wp_get_attachment_image_src( $attachment->ID, $image_size );
+				// if( $image_sizes )
+				// {
+				// 	foreach( $image_sizes as $image_size )
+				// 	{
+				// 		// find src
+				// 		$src = wp_get_attachment_image_src( $attachment->ID, $image_size );
 
-						// add src
-						$value[ 'sizes' ][ $image_size ] = $src[0];
-						$value[ 'sizes' ][ $image_size . '-width' ] = $src[1];
-						$value[ 'sizes' ][ $image_size . '-height' ] = $src[2];
-					}
-					// foreach( $image_sizes as $image_size )
-				}
+				// 		// add src
+				// 		$value[ 'sizes' ][ $image_size ] = $src[0];
+				// 		$value[ 'sizes' ][ $image_size . '-width' ] = $src[1];
+				// 		$value[ 'sizes' ][ $image_size . '-height' ] = $src[2];
+				// 	}
+				// 	// foreach( $image_sizes as $image_size )
+				// }
 			}
 			 elseif(is_array( $data->cropped_image) || is_object($data->cropped_image)){
                 // Cropped image is not saved to media directory. Get data from original image instead
@@ -695,6 +697,7 @@ class acf_field_image_crop extends acf_field_image
 			$imageData->original_image_height = $imageAtts[2];
 			$imageData->preview_image_url = $this->get_image_src($field['value'], $field['preview_size']);
 			$imageData->image_url = $this->get_image_src($field['value'], 'full');
+			$imageData->original_image_url = $imageData->image_url;
 			return $imageData;
 		}
 
@@ -761,96 +764,110 @@ class acf_field_image_crop extends acf_field_image
         // Get image editor from original image path to crop the image
         $image = wp_get_image_editor( $mediaDir['basedir'] . '/' . $originalImageData['file'] );
 
-        // Crop the image using the provided measurements
-        $image->crop($x1, $y1, $x2 - $x1, $y2 - $y1, $targetW, $targetH);
+        if(! is_wp_error( $image ) ){
 
-        // Retrieve original filename and seperate it from its file extension
-        $originalFileName = explode('.', basename($originalImageData['file']));
+        	// Crop the image using the provided measurements
+        	$image->crop($x1, $y1, $x2 - $x1, $y2 - $y1, $targetW, $targetH);
 
-        // Retrieve and remove file extension from array
-        $originalFileExtension = array_pop($originalFileName);
+	        // Retrieve original filename and seperate it from its file extension
+	        $originalFileName = explode('.', basename($originalImageData['file']));
 
-        // Generate new base filename
-        $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileExtension;
+	        // Retrieve and remove file extension from array
+	        $originalFileExtension = array_pop($originalFileName);
 
-        // Generate target path new file using existing media library
-        $targetFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], $targetFileName);
+	        // Generate new base filename
+	        $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileExtension;
 
-        // Get the relative path to save as the actual image url
-        $targetRelativePath = str_replace($mediaDir['basedir'] . '/', '', $targetFilePath);
+	        // Generate target path new file using existing media library
+	        $targetFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], $targetFileName);
 
-        // Save the image to the target path
-        if(is_wp_error($image->save($targetFilePath))){
-        	// There was an error saving the image
-        	//TODO handle it
-        }
+	        // Get the relative path to save as the actual image url
+	        $targetRelativePath = str_replace($mediaDir['basedir'] . '/', '', $targetFilePath);
 
-        // If file should be saved to media library, create an attachment for it at get the new attachment ID
-        if($saveToMediaLibrary){
-        	// Generate attachment from created file
+	        // Save the image to the target path
+	        if(is_wp_error($image->save($targetFilePath))){
+	        	// There was an error saving the image
+	        	//TODO handle it
+	        }
 
-        	// Get the filetype
-	        $wp_filetype = wp_check_filetype(basename($targetFilePath), null );
-	        $attachment = array(
-	             'guid' => $mediaDir['url'] . '/' . basename($targetFilePath),
-	             'post_mime_type' => $wp_filetype['type'],
-	             'post_title' => preg_replace('/\.[^.]+$/', '', basename($targetFilePath)),
-	             'post_content' => '',
-	             'post_status' => 'inherit'
-          	);
-	        $attachmentId = wp_insert_attachment( $attachment, $targetFilePath);
-	        $attachmentData = wp_generate_attachment_metadata( $attachmentId, $targetFilePath );
-	        wp_update_attachment_metadata( $attachmentId, $attachmentData );
-	        add_post_meta($attachmentId, 'acf_is_cropped', 'true', true);
+	        // If file should be saved to media library, create an attachment for it at get the new attachment ID
+	        if($saveToMediaLibrary){
+	        	// Generate attachment from created file
 
-	        // Add the id to the imageData-array
-	        $imageData['value'] = $attachmentId;
+	        	// Get the filetype
+		        $wp_filetype = wp_check_filetype(basename($targetFilePath), null );
+		        $attachment = array(
+		             'guid' => $mediaDir['url'] . '/' . basename($targetFilePath),
+		             'post_mime_type' => $wp_filetype['type'],
+		             'post_title' => preg_replace('/\.[^.]+$/', '', basename($targetFilePath)),
+		             'post_content' => '',
+		             'post_status' => 'inherit'
+	          	);
+		        $attachmentId = wp_insert_attachment( $attachment, $targetFilePath);
+		        $attachmentData = wp_generate_attachment_metadata( $attachmentId, $targetFilePath );
+		        wp_update_attachment_metadata( $attachmentId, $attachmentData );
+		        add_post_meta($attachmentId, 'acf_is_cropped', 'true', true);
 
-	        // Add the image url
-	        $imageUrlObject = wp_get_attachment_image_src( $attachmentId, 'full');
-	        $imageData['url'] = $imageUrlObject[0];
+		        // Add the id to the imageData-array
+		        $imageData['value'] = $attachmentId;
 
-	        // Add the preview url as well
-	        $previewUrlObject = wp_get_attachment_image_src( $attachmentId, $previewSize);
-	        $imageData['preview_url'] = $previewUrlObject[0];
-        }
-        // Else we need to return the actual path of the cropped image
-        else{
-        	// Add the image url to the imageData-array
-        	$imageData['value'] = array('image' => $targetRelativePath);
-        	$imageData['url'] = $mediaDir['baseurl'] . '/' . $targetRelativePath;
+		        // Add the image url
+		        $imageUrlObject = wp_get_attachment_image_src( $attachmentId, 'full');
+		        $imageData['url'] = $imageUrlObject[0];
 
-    		// Get preview size dimensions
-        	global $_wp_additional_image_sizes;
-        	$previewWidth = 0;
-        	$previewHeight = 0;
-        	$crop = 0;
-			if (isset($_wp_additional_image_sizes[$previewSize])) {
-				$previewWidth = intval($_wp_additional_image_sizes[$previewSize]['width']);
-				$previewHeight = intval($_wp_additional_image_sizes[$previewSize]['height']);
-				$crop = $_wp_additional_image_sizes[$previewSize]['crop'];
-			} else {
-				$previewWidth = get_option($previewSize.'_size_w');
-				$previewHeight = get_option($previewSize.'_size_h');
-				$crop = get_option($previewSize.'_crop');
-			}
+		        // Add the preview url as well
+		        $previewUrlObject = wp_get_attachment_image_src( $attachmentId, $previewSize);
+		        $imageData['preview_url'] = $previewUrlObject[0];
+	        }
+	        // Else we need to return the actual path of the cropped image
+	        else{
+	        	// Add the image url to the imageData-array
+	        	$imageData['value'] = array('image' => $targetRelativePath);
+	        	$imageData['url'] = $mediaDir['baseurl'] . '/' . $targetRelativePath;
 
-        	// Generate preview file path
-        	$previewFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], 'preview_' . $targetFileName);
-        	$previewRelativePath = str_replace($mediaDir['basedir'] . '/', '', $previewFilePath);
+	    		// Get preview size dimensions
+	        	global $_wp_additional_image_sizes;
+	        	$previewWidth = 0;
+	        	$previewHeight = 0;
+	        	$crop = 0;
+				if (isset($_wp_additional_image_sizes[$previewSize])) {
+					$previewWidth = intval($_wp_additional_image_sizes[$previewSize]['width']);
+					$previewHeight = intval($_wp_additional_image_sizes[$previewSize]['height']);
+					$crop = $_wp_additional_image_sizes[$previewSize]['crop'];
+				} else {
+					$previewWidth = get_option($previewSize.'_size_w');
+					$previewHeight = get_option($previewSize.'_size_h');
+					$crop = get_option($previewSize.'_crop');
+				}
 
-        	// Get image editor from cropped image
-        	$croppedImage = wp_get_image_editor( $targetFilePath );
-        	$croppedImage->resize($previewWidth, $previewHeight, $crop);
+	        	// Generate preview file path
+	        	$previewFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], 'preview_' . $targetFileName);
+	        	$previewRelativePath = str_replace($mediaDir['basedir'] . '/', '', $previewFilePath);
 
-        	// Save the preview
-        	$croppedImage->save($previewFilePath);
+	        	// Get image editor from cropped image
+	        	$croppedImage = wp_get_image_editor( $targetFilePath );
+	        	$croppedImage->resize($previewWidth, $previewHeight, $crop);
 
-        	// Add the preview url
-	        $imageData['preview_url'] = $mediaDir['baseurl'] . '/' . $previewRelativePath;
-	        $imageData['value']['preview'] = $previewRelativePath;
-        }
-        return $imageData;
+	        	// Save the preview
+	        	$croppedImage->save($previewFilePath);
+
+	        	// Add the preview url
+		        $imageData['preview_url'] = $mediaDir['baseurl'] . '/' . $previewRelativePath;
+		        $imageData['value']['preview'] = $previewRelativePath;
+	        }
+	        $imageData['success'] = true;
+	        return $imageData;
+	    }
+	    else{
+	    	 // Handle WP_ERROR
+	        $response = array();
+	        $response['success'] = false;
+	        $response['error_message'] = '';
+	        foreach($image->error_data as $code => $message){
+	            $response['error_message'] .= '<p><strong>' . $code . '</strong>: ' . $message . '</p>';
+	        }
+	        return $response;
+	    }
 	}
 
 	function get_image_src($id, $size = 'thumbnail'){

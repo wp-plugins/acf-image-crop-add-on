@@ -2,8 +2,8 @@
 Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
-Tested up to: 4.0
-Stable tag: 1.4.1
+Tested up to: 4.0.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,14 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.4.2 =
+* Improved migration from standard field to ACF crop field
+* Fixed and issue that caused warnings when options was not set
+* Fixed crop preview not showing correct crop position in some browsers
+* Improved error handling when server setup does not support image handling
+* Fixed original image data missing when saving to media library in v4
+* Improved error handling in v4
 
 = 1.4.1 =
 * Fixed issue with image not cropping in v4
