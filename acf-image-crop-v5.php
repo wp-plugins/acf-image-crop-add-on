@@ -951,15 +951,21 @@ class acf_field_image_crop extends acf_field_image {
     function format_value( $value, $post_id, $field ) {
 
        // validate
-        if( !$value )
-        {
+        if( !$value ){
             return false;
         }
+
         $data = json_decode($value);
-        if(!is_object($data)){
-            return $value;
+
+        if(is_object($data)){
+            $value = $data->cropped_image;
         }
-        $value = $data->cropped_image;
+        else{
+            // We are migrating from a standard image field
+            $data = new stdClass();
+            $data->cropped_image = $value;
+            $data->original_image = $value;
+        }
 
         // format
         if( $field['save_format'] == 'url' )
