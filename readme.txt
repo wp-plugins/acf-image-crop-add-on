@@ -2,8 +2,8 @@
 Contributors: andersthorborg
 Tags: afc, advanced custom fields, image crop, image, crop
 Requires at least: 3.5
-Tested up to: 4.1.1
-Stable tag: 1.4.4
+Tested up to: 4.2.2
+Stable tag: 1.4.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,10 @@ function my_register_fields()
 
 
 == Changelog ==
+
+= 1.4.5 =
+* Added compatibility with ACF 5.2.7
+* Added image quality filter (needs testing)
 
 = 1.4.4 =
 * Fixed migration from image field to not only return image ID

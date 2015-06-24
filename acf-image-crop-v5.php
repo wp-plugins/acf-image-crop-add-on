@@ -466,7 +466,6 @@ class acf_field_image_crop extends acf_field_image {
 
 
     function input_admin_enqueue_scripts() {
-
         $dir = plugin_dir_url( __FILE__ );
 
 
@@ -528,6 +527,9 @@ class acf_field_image_crop extends acf_field_image {
 
         // Get image editor from original image path to crop the image
         $image = wp_get_image_editor( $mediaDir['basedir'] . '/' . $originalImageData['file'] );
+
+        // Set quality
+        $image->set_quality( apply_filters('acf-image-crop/image-quality', 100) );
 
         if(! is_wp_error( $image ) ){
 

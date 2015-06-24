@@ -4,60 +4,83 @@
         type: 'image_crop',
         $el: null,
 
+        actions: {
+            'ready':    'initialize',
+            'append':   'initialize'
+        },
+
         events: {
-            'click [data-name="add"]':      'add',
-            'click [data-name="edit"]':     'edit',
-            'click [data-name="remove"]':   'remove',
+            'click a[data-name="add"]':     'add',
+            'click a[data-name="edit"]':    'edit',
+            'click a[data-name="remove"]':  'remove',
+            'change input[type="file"]':    'change'
         },
 
         focus: function(){
 
+            // get elements
             this.$el = this.$field.find('.acf-image-uploader');
 
-            this.settings = acf.get_data( this.$el );
+            // get options
+            this.o = acf.get_data( this.$el );
+
+
+        },
+
+        initialize: function(){
+            // add attribute to form
+            if( this.o.uploader == 'basic' ) {
+
+                this.$el.closest('form').attr('enctype', 'multipart/form-data');
+
+            }
 
         },
 
         add: function() {
-
             // reference
-            var self = this;
-
-
-            // vars
-            var field_key = acf.get_data( this.$field, 'key' );
+            var self = this,
+                $field = this.$field;
 
 
             // get repeater
-            var $repeater = acf.get_closest_field( this.$field, {type:'repeater'} );
+            var $repeater = acf.get_closest_field( this.$field, 'repeater' );
 
 
             // popup
             var frame = acf.media.popup({
-                'title'     : acf._e('image', 'select'),
-                'mode'      : 'select',
-                'type'      : 'image',
-                'multiple'  : $repeater.exists(),
-                'library'   : this.settings.library,
-                'select'    : function( attachment, i ) {
+
+                title:      acf._e('image', 'select'),
+                mode:       'select',
+                type:       'image',
+                field:      acf.get_field_key($field),
+                multiple:   $repeater.exists(),
+                library:    this.o.library,
+                mime_types: this.o.mime_types,
+
+                select: function( attachment, i ) {
 
                     // select / add another image field?
                     if( i > 0 ) {
 
                         // vars
-                        var $tr = self.$field.parent(),
-                            $next = false;
+                        var key = acf.get_field_key( $field ),
+                            $tr = $field.closest('.acf-row');
+
+
+                        // reset field
+                        $field = false;
 
 
                         // find next image field
-                        $tr.nextAll('.acf-row').not('.clone').each(function(){
+                        $tr.nextAll('.acf-row:visible').each(function(){
 
                             // get next $field
-                            $next = acf.get_field( field_key, $(this) );
+                            $field = acf.get_field( key, $(this) );
 
 
                             // bail early if $next was not found
-                            if( !$next ) {
+                            if( !$field ) {
 
                                 return;
 
@@ -65,9 +88,9 @@
 
 
                             // bail early if next file uploader has value
-                            if( $next.find('.acf-image-uploader.has-value').exists() ) {
+                            if( $field.find('.acf-image-uploader.has-value').exists() ) {
 
-                                $next = false;
+                                $field = false;
                                 return;
 
                             }
@@ -80,7 +103,7 @@
 
 
                         // add extra row if next is not found
-                        if( !$next ) {
+                        if( !$field ) {
 
                             $tr = acf.fields.repeater.doFocus( $repeater ).add();
 
@@ -94,43 +117,52 @@
 
 
                             // get next $field
-                            $next = acf.get_field( field_key, $tr );
+                            $field = acf.get_field( key, $tr );
 
                         }
 
-
-                        // update $el
-                        self.doFocus( $next );
-
                     }
 
+                    // focus
+                    self.doFocus( $field );
 
-                    // add file to field
-                    self.render( attachment );
+
+                    // render
+                    self.render( self.prepare(attachment) );
 
                 }
-            });
 
+            });
 
         },
 
-        render: function( attachment ){
+        prepare: function( attachment ) {
+            // vars
+            var image = {
+                id:     attachment.id,
+                url:    attachment.attributes.url
+            };
 
-            // override url
-            if( acf.isset(attachment, 'attributes', 'sizes', this.settings.preview_size, 'url') ) {
 
-                attachment.url = attachment.attributes.sizes[ this.settings.preview_size ].url;
+            // check for preview size
+            if( acf.isset(attachment.attributes, 'sizes', this.o.preview_size, 'url') ) {
+
+                image.url = attachment.attributes.sizes[ this.o.preview_size ].url;
 
             }
-            // set url to default url in case preview size does not exist
-            else if(acf.isset(attachment, 'attributes', 'url')){
 
-                attachment.url = attachment.attributes.url;
-            }
+
+            // return
+            return image;
+
+        },
+
+        render: function( image ){
+
 
             // set atts
-            this.$el.find('[data-name="image"]').attr( 'src', attachment.url );
-            this.$el.find('[data-name="id"]').val( attachment.id ).trigger('change');
+            this.$el.find('[data-name="image"]').attr( 'src', image.url );
+            this.$el.find('[data-name="id"]').val( image.id ).trigger('change');
 
 
             // set div class
@@ -139,27 +171,30 @@
         },
 
         edit: function() {
-
             // reference
             var self = this;
 
 
             // vars
-            var id = this.$el.find('[data-name="id"]').val();
+            //var id = this.$el.find('[data-name="id"]').val();
 
+            var id = this.$el.find('.acf-image-value').data('cropped-image');
+            if(!$.isNumeric(id)){
+                id = this.$el.find('.acf-image-value').data('original-image');;
+            }
 
             // popup
             var frame = acf.media.popup({
 
                 title:      acf._e('image', 'edit'),
+                type:       'image',
                 button:     acf._e('image', 'update'),
                 mode:       'edit',
                 id:         id,
 
                 select: function( attachment, i ) {
 
-                    // add file to field
-                    self.render( attachment );
+                    self.render( self.prepare(attachment) );
 
                 }
 
@@ -182,6 +217,12 @@
 
             // remove class
             this.$el.removeClass('has-value');
+
+        },
+
+        change: function( e ){
+
+            this.$el.find('[data-name="id"]').val( e.$el.val() );
 
         }
 
@@ -251,20 +292,20 @@ function initialize_field( $el ) {
             e.preventDefault();
             cancelCrop($field);
         });
-        $field.find('[data-name=edit]').click(function(e){
-            e.preventDefault();
-            e.stopPropagation();
-            var id = $field.find('.acf-image-value').data('cropped-image');
-            if(!$.isNumeric(id)){
-                id = $field.find('.acf-image-value').data('original-image');;
-            }
-            acf.media.popup({
-                mode : 'edit',
-                title : acf._e('image', 'edit'),
-                button : acf._e('image', 'update'),
-                id : id
-            });
-        });
+        // $field.find('[data-name=edit]').click(function(e){
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        //     var id = $field.find('.acf-image-value').data('cropped-image');
+        //     if(!$.isNumeric(id)){
+        //         id = $field.find('.acf-image-value').data('original-image');;
+        //     }
+        //     acf.media.popup({
+        //         mode : 'edit',
+        //         title : acf._e('image', 'edit'),
+        //         button : acf._e('image', 'update'),
+        //         id : id
+        //     });
+        // });
 
     }
 
@@ -400,13 +441,14 @@ function initialize_field( $el ) {
     }
 
     function toggleCropView($field){
-        if($field.hasClass('cropping')){
+        var $innerField = $field.find('.acf-image-crop');
+        if($innerField.hasClass('cropping')){
             $('#acf-image-crop-overlay').remove();
         }
         else{
             $('body').append($('<div id="acf-image-crop-overlay"></div>'));
         }
-        $field.toggleClass('cropping');
+        $innerField.toggleClass('cropping');
 
     }
 
