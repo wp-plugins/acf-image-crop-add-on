@@ -18,7 +18,9 @@
 
 	$(document).on('acf/setup_fields', function(e, postbox){
 		$(postbox).find('.field_type-image_crop').each(function(){
-			var $field = $(this), $options = $field.find('.acf-image-uploader');
+			var $field = $(this).find('.acf-image-crop');
+			var $options = $field;
+			// var $el = $field.find('.acf-image-crop');
 			$field.find('.acf-image-value').on('change', function(){
 				var originalImage = $(this).val();
 				if($(this).val()){
@@ -98,7 +100,7 @@
 	});
 
 	function initCrop($field){
-		var $options = $field.find('.acf-image-uploader');
+		var $options = $field;
 		var options = {
 			handles: true,
 			onSelectEnd: function (img, selection) {
@@ -148,7 +150,7 @@
 	}
 
 	function updateCropData($field, img, selection){
-		var $options = $field.find('.acf-image-uploader');
+		var $options = $field;
 		$options.data('x1', selection.x1);
         $options.data('x2', selection.x2);
         $options.data('y1', selection.y1);
@@ -156,7 +158,7 @@
 	}
 
 	function updateThumbnail($field, img, selection){
-		var $options = $field.find('.acf-image-uploader');
+		var $options = $field;
 		var div = $field.find('.crop-preview .preview');
         var targetWidth = $field.find('.crop-preview .preview').width();
         var factor = targetWidth / (selection.x2 - selection.x1);
@@ -186,7 +188,7 @@
 	function performCrop($field){
 		if(!$field.find('.crop-stage').hasClass('loading')){
 			$field.find('.crop-stage').addClass('loading');
-			var $options = $field.find('.acf-image-uploader');
+			var $options = $field;
 			var targetWidth = $options.data('width');
 			var targetHeight = $options.data('height');
 			var saveToMediaLibrary = $options.data('save-to-media-library');
@@ -208,7 +210,7 @@
 			}
 			$.post(ajaxurl, data, function(data, textStatus, xhr) {
 				if(data.success){
-                    $field.find('[data-name=image]').attr('src', data.preview_url);
+					$field.find('.acf-image-image').attr('src', data.preview_url);
                     $field.find('.acf-image-value').data('cropped-image', data.value);
                     $field.find('.acf-image-value').data('cropped', true);
                     updateFieldValue($field);
@@ -235,7 +237,6 @@
 			$('body').append($('<div id="acf-image-crop-overlay"></div>'));
 		}
 		$field.toggleClass('cropping');
-
 	}
 
 	function updateFieldValue($field){

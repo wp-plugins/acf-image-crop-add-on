@@ -361,7 +361,7 @@ class acf_field_image_crop extends acf_field_image
             $height = $height * 2;
         }
 		?>
-<div class="acf-image-uploader clearfix <?php echo $o['class']; ?>" data-field-id="<?php echo $field['key'] ?>" data-preview_size="<?php echo $field['preview_size']; ?>" data-library="<?php echo isset($field['library']) ? $field['library'] : 'all'; ?>" data-width="<?php echo $width ?>" data-height="<?php echo $height ?>" data-crop-type="<?php echo $field['crop_type'] ?>" <?php echo ($field['force_crop'] == 'yes' ? 'data-force-crop="true"' : '')?> data-save-to-media-library="<?php echo $field['save_in_media_library'] ?>"  >
+<div class="acf-image-uploader clearfix acf-image-crop <?php echo $o['class']; ?>" data-field-id="<?php echo $field['key'] ?>" data-preview_size="<?php echo $field['preview_size']; ?>" data-library="<?php echo isset($field['library']) ? $field['library'] : 'all'; ?>" data-width="<?php echo $width ?>" data-height="<?php echo $height ?>" data-crop-type="<?php echo $field['crop_type'] ?>" <?php echo ($field['force_crop'] == 'yes' ? 'data-force-crop="true"' : '')?> data-save-to-media-library="<?php echo $field['save_in_media_library'] ?>"  >
 	<input class="acf-image-value" data-original-image="<?php echo $imageData->original_image ?>"  data-cropped-image="<?php echo json_encode($imageData->cropped_image) ?>" type="hidden" name="<?php echo $field['name']; ?>" value="<?php echo htmlspecialchars($field['value']); ?>" />
 	<div class="has-image">
 		<div class="image-section">
