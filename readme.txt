@@ -61,6 +61,9 @@ function my_register_fields()
 
 == Changelog ==
 
+= 1.4.6 =
+* Added compatibility with ACF 4.4.2 and ACF PRO 5.2.9
+
 = 1.4.5 =
 * Added compatibility with ACF 5.2.7
 * Added image quality filter (needs testing)
