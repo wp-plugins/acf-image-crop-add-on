@@ -61,7 +61,7 @@ function my_register_fields()
 
 == Changelog ==
 
-= 1.4.6 =
+= 1.4.7 =
 * Added compatibility with ACF PRO 5.4.2.2 icons
 
 = 1.4.6 =
