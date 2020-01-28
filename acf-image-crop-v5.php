@@ -4,7 +4,7 @@ class acf_field_image_crop extends acf_field_image {
 
 
     /*
-    *  __construct
+    *  initialize
     *
     *  This function will setup the field type data
     *
@@ -16,7 +16,7 @@ class acf_field_image_crop extends acf_field_image {
     *  @return  n/a
     */
 
-    function __construct() {
+    function initialize() {
 
         /*
         *  name (string) Single word, no spaces. Underscores allowed
@@ -80,14 +80,7 @@ class acf_field_image_crop extends acf_field_image {
             'size_warning'      => __( 'Warning: The selected image is smaller than the required size!','acf-image_crop' ),
             'crop_error'        => __( 'Sorry, an error occurred when trying to crop your image:')
         );
-
-
-        // do not delete!
-        acf_field::__construct();
-        //parent::__construct();
-
     }
-
 
     // AJAX handler for retieving full image dimensions from ID
     public function crop_get_image_size()
@@ -316,6 +309,7 @@ class acf_field_image_crop extends acf_field_image {
         // vars
         $div_atts = array(
             'class'                 => 'acf-image-uploader acf-cf acf-image-crop',
+            'data-field-settings'   => json_encode($field),
             'data-crop_type'        => $field['crop_type'],
             'data-target_size'      => $field['target_size'],
             'data-width'            => $width,
@@ -373,7 +367,7 @@ class acf_field_image_crop extends acf_field_image {
         </div>
     </div>
     <div class="view hide-if-value">
-        <p><?php _e('No image selected','acf'); ?> <a data-name="add" class="acf-button" href="#"><?php _e('Add Image','acf'); ?></a></p>
+        <p><?php _e('No image selected','acf'); ?> <a data-name="add" class="acf-button button" href="#"><?php _e('Add Image','acf'); ?></a></p>
     </div>
 </div>
 <?php
@@ -480,7 +474,7 @@ class acf_field_image_crop extends acf_field_image {
 
         // register acf scripts
         //wp_register_script('acf-input-image', "{$dir}../advanced-custom-fields-pro/js/input/image.js");
-        wp_register_script('acf-input-image_crop', "{$dir}js/input.js", array('acf-input', 'imgareaselect'));
+        wp_register_script('acf-input-image_crop', "{$dir}js/input.js?d=", array('acf-input', 'imgareaselect'));
 
         wp_register_style('acf-input-image_crop', "{$dir}css/input.css", array('acf-input'));
 
@@ -543,7 +537,8 @@ class acf_field_image_crop extends acf_field_image {
             $originalFileExtension = array_pop($originalFileName);
 
             // Generate new base filename
-            $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . '_acf_cropped'  . '.' . $originalFileExtension;
+            $targetFileName = implode('.', $originalFileName) . '_' . $targetW . 'x' . $targetH . apply_filters('acf-image-crop/filename_postfix', '_acf_cropped')  . '.' . $originalFileExtension;
+
 
             // Generate target path new file using existing media library
             $targetFilePath = $mediaDir['path'] . '/' . wp_unique_filename( $mediaDir['path'], $targetFileName);
@@ -737,9 +732,8 @@ class acf_field_image_crop extends acf_field_image {
 // added
 // a function that sets theoptions value to false
     function validateImageCropSettingsSection($input) {
-        $input['hide_cropped'] = ( $input['hide_cropped'] == true ? true : false );
-        $input['retina_mode'] = ( $input['retina_mode'] == true ? true : false );
-
+        $input['hide_cropped'] =    ( isset( $input['hide_cropped'] ) && $input['hide_cropped'] == true ? true : false );
+        $input['retina_mode'] =     ( isset( $input['retina_mode'] ) && $input['retina_mode'] == true ? true : false );
         return $input;
     }
 // added END
@@ -908,28 +902,13 @@ class acf_field_image_crop extends acf_field_image {
 
     /*
     *  update_value()
-    *
-    *  This filter is applied to the $value before it is saved in the db
-    *
-    *  @type    filter
-    *  @since   3.6
-    *  @date    23/01/13
-    *
-    *  @param   $value (mixed) the value found in the database
-    *  @param   $post_id (mixed) the $post_id from which the value was loaded
-    *  @param   $field (array) the field array holding all the field options
-    *  @return  $value
+    *  Implement this function to avoid parent function taking over and trying to validate json data
     */
-
-    /*
-
     function update_value( $value, $post_id, $field ) {
-
         return $value;
-
     }
 
-    */
+
 
 
     /*
@@ -1148,30 +1127,13 @@ class acf_field_image_crop extends acf_field_image {
     *  @return  $valid
     */
 
-    /*
+
 
     function validate_value( $valid, $value, $field, $input ){
-
-        // Basic usage
-        if( $value < $field['custom_minimum_setting'] )
-        {
-            $valid = false;
-        }
-
-
-        // Advanced usage
-        if( $value < $field['custom_minimum_setting'] )
-        {
-            $valid = __('The value is too little!','acf-image_crop'),
-        }
-
-
-        // return
         return $valid;
-
     }
 
-    */
+
 
 
     /*

@@ -51,8 +51,12 @@
 /* changed */
 	z-index: 11000;
 /* changed END */
-
 }
+
+body.block-editor-page .acf-image-crop.cropping .crop-stage {
+	top: 120px;
+}
+
 .acf-image-crop.cropping .has-image, .acf-image-crop.cropping .crop-section{
 	width:100%;
 }

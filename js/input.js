@@ -368,7 +368,6 @@ function initialize_field( $el ) {
     }
 
     function updateThumbnail($field, img, selection){
-        console.log('updating thumbnail');
         var $options = $field.find('.acf-image-uploader');
         var div = $field.find('.crop-preview .preview');
         var targetWidth = $field.find('.crop-preview .preview').width();
@@ -442,11 +441,26 @@ function initialize_field( $el ) {
 
     function toggleCropView($field){
         var $innerField = $field.find('.acf-image-crop');
+        var isGutenberg = $('body').hasClass('block-editor-page')
+
         if($innerField.hasClass('cropping')){
             $('#acf-image-crop-overlay').remove();
+
+            if(isGutenberg) {
+                if(!$('.edit-post-layout').hasClass('is-sidebar-opened')) {
+                    jQuery('.components-icon-button[aria-label="Settings"').trigger('click');
+                }
+            }
         }
         else{
-            $('body').append($('<div id="acf-image-crop-overlay"></div>'));
+            if(isGutenberg) {
+                if($('.edit-post-layout').hasClass('is-sidebar-opened')) {
+                    jQuery('.components-icon-button[aria-label="Settings"').trigger('click');
+                }
+                $('.edit-post-layout__content').prepend($('<div id="acf-image-crop-overlay"></div>'));
+            } else {
+                $('body').append($('<div id="acf-image-crop-overlay"></div>'));
+            }
         }
         $innerField.toggleClass('cropping');
 
