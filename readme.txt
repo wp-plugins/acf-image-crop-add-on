@@ -62,6 +62,9 @@ function my_register_fields()
 == Changelog ==
 
 = 1.5.0 =
+* loading="lazy" attribute for WP dashboard images
+
+= 1.5.0 =
 * Fix compatibility with Gutenberg
 
 = 1.4.12 =
